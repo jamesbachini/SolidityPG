@@ -67,16 +67,16 @@ function StartPage() {
               </svg>
             </div>
             <div>
-              <h1 className="text-5xl font-bold text-white mb-2">
+              <h1 className="text-5xl font-bold text-white mb-1">
                 SolidityPG
               </h1>
-              <p className="text-dark-300 text-sm tracking-wide">
+              <p className="text-gray-500 text-sm tracking-wide">
                 NEXTGEN SMART CONTRACT DEVELOPMENT
               </p>
             </div>
           </div>
           <p className="text-dark-200 text-xl max-w-3xl mx-auto leading-relaxed">
-            Build secure, efficient smart contracts with AI assisted workflow.
+            Secure accelerated development with AI assisted workflow.
           </p>
         </div>
         
