@@ -4,8 +4,19 @@ import OptionsPanel from '../components/Sidebar/OptionsPanel'
 import ChatPanel from '../components/Sidebar/ChatPanel'
 import CompilationPanel from '../components/CompilationPanel'
 
-function RightSidebar({ isOpen, isMobile, onClose, files, activeFile, onUpdateFile }) {
-  const [activeTab, setActiveTab] = useState('chat')
+function RightSidebar({ 
+  isOpen, 
+  isMobile, 
+  onClose, 
+  files, 
+  activeFile, 
+  onUpdateFile, 
+  chatHistory, 
+  onUpdateChatHistory, 
+  activeTab,
+  onSetActiveTab,
+  floatingChatRef 
+}) {
 
   if (!isOpen) return null
 
@@ -34,7 +45,7 @@ function RightSidebar({ isOpen, isMobile, onClose, files, activeFile, onUpdateFi
         <div className="flex items-center justify-between p-4 border-b border-dark-600">
           <div className="flex space-x-1">
             <button
-              onClick={() => setActiveTab('chat')}
+              onClick={() => onSetActiveTab('chat')}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 activeTab === 'chat'
                   ? 'bg-blue-600 text-white'
@@ -47,7 +58,7 @@ function RightSidebar({ isOpen, isMobile, onClose, files, activeFile, onUpdateFi
               </span>
             </button>
             <button
-              onClick={() => setActiveTab('compile')}
+              onClick={() => onSetActiveTab('compile')}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 activeTab === 'compile'
                   ? 'bg-blue-600 text-white'
@@ -57,7 +68,7 @@ function RightSidebar({ isOpen, isMobile, onClose, files, activeFile, onUpdateFi
               Compile
             </button>
             <button
-              onClick={() => setActiveTab('options')}
+              onClick={() => onSetActiveTab('options')}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 activeTab === 'options'
                   ? 'bg-blue-600 text-white'
@@ -80,7 +91,17 @@ function RightSidebar({ isOpen, isMobile, onClose, files, activeFile, onUpdateFi
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto min-h-0">
-          {activeTab === 'chat' && <ChatPanel files={files} activeFile={activeFile} onUpdateFile={onUpdateFile} />}
+          {activeTab === 'chat' && (
+            <ChatPanel 
+              files={files} 
+              activeFile={activeFile} 
+              onUpdateFile={onUpdateFile}
+              chatHistory={chatHistory}
+              onUpdateChatHistory={onUpdateChatHistory}
+              hideInput={true}
+              floatingChatRef={floatingChatRef}
+            />
+          )}
           {activeTab === 'compile' && <CompilationPanel files={files} activeFile={activeFile} />}
           {activeTab === 'options' && <OptionsPanel />}
         </div>

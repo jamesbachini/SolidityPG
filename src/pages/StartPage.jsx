@@ -80,7 +80,7 @@ function StartPage() {
           </p>
         </div>
         
-        <div className="bg-gradient-to-br from-dark-800 to-dark-900 rounded-2xl p-8 mb-12 border border-dark-600">
+        <div className="bg-gradient-to-br from-dark-800 to-dark-900 rounded-2xl p-8 mb-12 border border-dark-600 relative">
           <div className="grid lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-8">
             {workflowStages.map((stage, index) => {
               const Icon = stage.icon
@@ -88,7 +88,7 @@ function StartPage() {
                 <button
                   key={stage.key}
                   onClick={() => navigate(stage.path)}
-                  className="text-center space-y-4 group cursor-pointer transition-all duration-200 hover:scale-105"
+                  className={`text-center space-y-4 group cursor-pointer transition-all duration-200 hover:scale-105 ${index === 0 ? 'relative' : ''}`}
                 >
                   <div className={`w-16 h-16 bg-gradient-to-r ${stage.gradient} rounded-2xl flex items-center justify-center text-white mx-auto group-hover:shadow-lg transition-all`}>
                     <Icon size={24} />
@@ -99,6 +99,21 @@ function StartPage() {
                       {stage.description}
                     </p>
                   </div>
+                  
+                  {/* Floating Arrow for Spec stage */}
+                  {index === 0 && (
+                    <div className="absolute -top-0 -left-20 flex items-center gap-2 animate-bounce pointer-events-none z-10">
+                      <span className="text-blue-400 text-sm font-medium bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 whitespace-nowrap">
+                        Start here
+                      </span>
+                      <div className="text-blue-400 transform rotate-45">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M4 16 L16 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          <path d="M12 4 L16 4 L16 8" fill="currentColor"/>
+                        </svg>
+                      </div>
+                    </div>
+                  )}
                 </button>
               )
             })}

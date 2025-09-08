@@ -3,10 +3,11 @@ import { useLocation } from 'react-router-dom'
 import { Send, Sparkles, Code, FileText, Loader2, Zap, RefreshCw, Edit3, AlertCircle } from 'lucide-react'
 import { callAI, getSystemPrompt, parseAIResponse, loadAIConfig } from '../../utils/aiService'
 
-function ChatPanel({ files, activeFile, onUpdateFile }) {
+function ChatPanel({ files, activeFile, onUpdateFile, chatHistory: externalChatHistory, onUpdateChatHistory: externalOnUpdateChatHistory, hideInput = false, floatingChatRef }) {
   const [message, setMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [chatHistory, setChatHistory] = useState(() => {
+  // Use external chat history if provided, otherwise use local state
+  const chatHistory = externalChatHistory || useState(() => {
     try {
       const saved = localStorage.getItem('soliditypg_chat_history')
       if (saved) {
@@ -21,7 +22,23 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
     } catch {
       return []
     }
-  })
+  })[0]
+  
+  const setChatHistory = externalOnUpdateChatHistory || useState(() => {
+    try {
+      const saved = localStorage.getItem('soliditypg_chat_history')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        return parsed.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+      }
+      return []
+    } catch {
+      return []
+    }
+  })[1]
   const [includeCurrentFile, setIncludeCurrentFile] = useState(false)
   const [aiConfig, setAiConfig] = useState(loadAIConfig())
   const [error, setError] = useState(null)
@@ -44,14 +61,16 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
     }
   }, [])
 
-  // Save chat history
+  // Save chat history only if using local state (not external)
   useEffect(() => {
-    try {
-      localStorage.setItem('soliditypg_chat_history', JSON.stringify(chatHistory))
-    } catch (error) {
-      console.warn('Failed to save chat history:', error)
+    if (!externalChatHistory) {
+      try {
+        localStorage.setItem('soliditypg_chat_history', JSON.stringify(chatHistory))
+      } catch (error) {
+        console.warn('Failed to save chat history:', error)
+      }
     }
-  }, [chatHistory])
+  }, [chatHistory, externalChatHistory])
 
   // Auto-scroll to bottom when new messages are added
   useEffect(() => {
@@ -101,10 +120,10 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
       // Get current stage for system prompt
       const stageName = location.pathname.split('/').pop()
       const currentFile = files && activeFile && files[activeFile] ? files[activeFile].content : ''
-      const systemPrompt = getSystemPrompt(stageName, activeFile, currentFile)
+      const systemPrompt = getSystemPrompt(stageName, activeFile, currentFile, files)
       
-      // Call AI API
-      const aiResponse = await callAI(systemPrompt, message, context)
+      // Call AI API with chat history (exclude current user message from history)
+      const aiResponse = await callAI(systemPrompt, message, context, chatHistory)
       
       // Parse the response to separate code from comments
       const parsedResponse = parseAIResponse(aiResponse)
@@ -185,43 +204,41 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
     if (path.includes('/spec')) {
       return [
         "Help me define the requirements for a token contract",
-        "What security considerations should I include?",
-        "Create a specification checklist for my use case"
+        "Create a contract specification for a hello world example contract"
       ]
     } else if (path.includes('/build')) {
       return [
-        "Review my contract for security issues",
-        "Help me implement a specific function",
-        "Suggest gas optimization improvements"
+        "Create a skeleton contract based on the specification provided",
+        "Let's complete the first function, ask me questions about the implementation"
       ]
     } else if (path.includes('/test')) {
       return [
         "Create comprehensive unit tests",
-        "Help me test for security vulnerabilities",
-        "Generate property-based test cases"
+        "Help me test for security vulnerabilities"
       ]
     } else if (path.includes('/deploy')) {
       return [
         "Create a deployment script",
-        "Help me configure constructor parameters",
         "Guide me through testnet deployment"
       ]
     } else if (path.includes('/integrate')) {
       return [
-        "Generate TypeScript bindings",
-        "Create React integration code",
-        "Help with wallet connection setup"
+        "Generate JavaScript bindings",
+        "Create React integration code"
       ]
     }
     return [
-      "Help me plan a smart contract project",
-      "Explain Solidity best practices",
-      "Review my code for improvements"
+      "Help me plan a smart contract project"
     ]
   }
 
   const handleSuggestedPrompt = (prompt) => {
-    setMessage(prompt)
+    if (floatingChatRef?.current) {
+      floatingChatRef.current.setMessage(prompt)
+      floatingChatRef.current.focusInput()
+    } else {
+      setMessage(prompt)
+    }
   }
 
   const handleAttachCode = () => {
@@ -325,7 +342,7 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
             </div>
           </div>
         ) : (
-          <div className="p-4 space-y-4">
+          <div className="p-4 space-y-4 pb-32">
             {chatHistory.map((msg, idx) => (
               <div key={idx} className={`flex gap-3 ${msg.type === 'user' ? 'justify-end' : ''}`}>
                 {msg.type === 'ai' && (
@@ -339,9 +356,11 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
                       ? 'bg-blue-600 text-white ml-auto'
                       : msg.isError 
                         ? 'bg-red-600/20 border border-red-600/30 text-red-300'
-                        : 'bg-dark-700 text-dark-200'
+                        : msg.isThinking
+                          ? 'bg-yellow-600/20 border border-yellow-600/30 text-yellow-300'
+                          : 'bg-dark-700 text-dark-200'
                   }`}>
-                    <div className="whitespace-pre-wrap">{msg.content}</div>
+                    <div className={`whitespace-pre-wrap ${msg.isThinking ? 'animate-pulse' : ''}`}>{msg.content}</div>
                     {msg.includeContext && (
                       <div className="mt-2 pt-2 border-t border-blue-500/20">
                         <div className="flex items-center gap-1 text-blue-200 text-xs">
@@ -387,8 +406,9 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
         )}
       </div>
 
-      {/* Input area */}
-      <div className="border-t border-dark-600 p-4 bg-dark-800">
+      {/* Input area - hide if hideInput is true */}
+      {!hideInput && (
+        <div className="border-t border-dark-600 p-4 bg-dark-800">
         {/* Quick actions */}
         <div className="flex gap-2 mb-3">
           <button
@@ -458,7 +478,8 @@ function ChatPanel({ files, activeFile, onUpdateFile }) {
         <div className="mt-2 text-xs text-dark-500 text-center">
           🔒 Your conversations and API keys stay local • No data sent to our servers
         </div>
-      </div>
+        </div>
+      )}
     </div>
   )
 }

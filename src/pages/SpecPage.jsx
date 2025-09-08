@@ -44,13 +44,6 @@ function SpecPage() {
             <Wand2 size={16} />
             Spec Wizard
           </button>
-          <button
-            onClick={handleRunPrompt}
-            className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg font-medium transition-colors"
-          >
-            <Play size={16} />
-            Run Prompt
-          </button>
         </div>
       </div>
       

@@ -4,18 +4,50 @@ import Header from './Header'
 import BottomWorkflowNav from './BottomWorkflowNav'
 import RightSidebar from './RightSidebar'
 import EditorPane from '../components/EditorPane'
+import FloatingChatInput from '../components/FloatingChatInput'
 
 function Shell() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
   const [editorData, setEditorData] = useState({ files: {}, activeFile: '' })
+  const [chatHistory, setChatHistory] = useState(() => {
+    try {
+      const saved = localStorage.getItem('soliditypg_chat_history')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        return parsed.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp)
+        }))
+      }
+      return []
+    } catch {
+      return []
+    }
+  })
+  const [sidebarActiveTab, setSidebarActiveTab] = useState('chat')
   const editorRef = useRef()
+  const floatingChatRef = useRef()
   const location = useLocation()
+
+  // Save chat history
+  useEffect(() => {
+    try {
+      localStorage.setItem('soliditypg_chat_history', JSON.stringify(chatHistory))
+    } catch (error) {
+      console.warn('Failed to save chat history:', error)
+    }
+  }, [chatHistory])
 
   const handleUpdateFile = (fileName, content) => {
     if (editorRef.current) {
       editorRef.current.updateFile(fileName, content)
     }
+  }
+
+  const handleSwitchToChat = () => {
+    setSidebarActiveTab('chat')
+    setSidebarOpen(true)
   }
 
   // Handle window resize
@@ -68,11 +100,27 @@ function Shell() {
           files={editorData.files}
           activeFile={editorData.activeFile}
           onUpdateFile={handleUpdateFile}
+          chatHistory={chatHistory}
+          onUpdateChatHistory={setChatHistory}
+          activeTab={sidebarActiveTab}
+          onSetActiveTab={setSidebarActiveTab}
+          floatingChatRef={floatingChatRef}
         />
       </div>
       
       {/* Bottom navigation */}
       <BottomWorkflowNav />
+      
+      {/* Floating Chat Input */}
+      <FloatingChatInput 
+        ref={floatingChatRef}
+        files={editorData.files}
+        activeFile={editorData.activeFile}
+        onUpdateFile={handleUpdateFile}
+        onSwitchToChat={handleSwitchToChat}
+        chatHistory={chatHistory}
+        onUpdateChatHistory={setChatHistory}
+      />
     </div>
   )
 }

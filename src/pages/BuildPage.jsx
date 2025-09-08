@@ -1,6 +1,50 @@
+import { useState } from 'react'
 import StagePromptCard from '../components/StagePromptCard'
 
 function BuildPage() {
+  const [completedTasks, setCompletedTasks] = useState(new Set())
+  const [securityChecks, setSecurityChecks] = useState(new Set())
+
+  const implementationTasks = [
+    { id: 'structure', label: 'Set up contract structure' },
+    { id: 'functions', label: 'Implement core functions' },
+    { id: 'access', label: 'Add access controls' },
+    { id: 'security', label: 'Include security guards' },
+    { id: 'documentation', label: 'Write NatSpec documentation' }
+  ]
+
+  const securityPatterns = [
+    { id: 'modifiers', label: 'Access control modifiers' },
+    { id: 'pause', label: 'Emergency pause functionality' },
+    { id: 'validation', label: 'Input validation' },
+    { id: 'logic', label: 'Logic errors' }
+  ]
+
+  const toggleTask = (taskId) => {
+    const newCompleted = new Set(completedTasks)
+    if (newCompleted.has(taskId)) {
+      newCompleted.delete(taskId)
+    } else {
+      newCompleted.add(taskId)
+    }
+    setCompletedTasks(newCompleted)
+  }
+
+  const toggleSecurityCheck = (checkId) => {
+    const newChecks = new Set(securityChecks)
+    if (newChecks.has(checkId)) {
+      newChecks.delete(checkId)
+    } else {
+      newChecks.add(checkId)
+    }
+    setSecurityChecks(newChecks)
+  }
+
+  const checkSecurityConcerns = () => {
+    // TODO: Implement AI-powered security analysis
+    alert('Security analysis feature will analyze your contract for security concerns using AI.')
+  }
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -16,53 +60,45 @@ function BuildPage() {
         <div className="bg-dark-800 rounded-lg p-4">
           <h3 className="text-lg font-semibold text-white mb-3">Implementation Tasks</h3>
           <div className="space-y-2 text-sm text-dark-300">
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Set up contract structure</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Implement core functions</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Add access controls</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Include security guards</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Write NatSpec documentation</span>
-            </div>
+            {implementationTasks.map((task) => (
+              <div key={task.id} className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-dark-600 text-blue-600 focus:ring-blue-500 focus:ring-2 bg-dark-700" 
+                  checked={completedTasks.has(task.id)}
+                  onChange={() => toggleTask(task.id)}
+                />
+                <span className={completedTasks.has(task.id) ? 'line-through text-dark-500' : ''}>
+                  {task.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
         
         <div className="bg-dark-800 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-white mb-3">Security Patterns</h3>
-          <div className="space-y-2 text-sm text-dark-300">
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Reentrancy protection</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Integer overflow checks</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Access control modifiers</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Emergency pause functionality</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" className="rounded" disabled />
-              <span>Input validation</span>
-            </div>
+          <h3 className="text-lg font-semibold text-white mb-3">Security Checks</h3>
+          <div className="space-y-2 text-sm text-dark-300 mb-4">
+            {securityPatterns.map((pattern) => (
+              <div key={pattern.id} className="flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  className="rounded border-dark-600 text-blue-600 focus:ring-blue-500 focus:ring-2 bg-dark-700" 
+                  checked={securityChecks.has(pattern.id)}
+                  onChange={() => toggleSecurityCheck(pattern.id)}
+                />
+                <span className={securityChecks.has(pattern.id) ? 'line-through text-dark-500' : ''}>
+                  {pattern.label}
+                </span>
+              </div>
+            ))}
           </div>
+          <button
+            onClick={checkSecurityConcerns}
+            className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white py-2 px-4 rounded-md transition-all duration-200 font-medium"
+          >
+            Check For Security Concerns
+          </button>
         </div>
       </div>
     </div>

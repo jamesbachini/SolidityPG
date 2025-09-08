@@ -11,7 +11,7 @@ export const AI_PROVIDERS = {
 export const AI_MODELS = {
   [AI_PROVIDERS.OPENAI]: [
     { id: 'gpt-5', name: 'OpenAI GPT-5', contextLimit: 200000 },
-    { id: 'gpt-5-mini', name: 'OpenAI GPT-5', contextLimit: 200000 },
+    { id: 'gpt-5-mini', name: 'OpenAI GPT-5-mini', contextLimit: 200000 },
   ],
   [AI_PROVIDERS.ANTHROPIC]: [
     { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', contextLimit: 200000 }
@@ -59,7 +59,7 @@ const API_ENDPOINTS = {
 }
 
 // Format message for different providers
-const formatMessage = (provider, systemPrompt, userMessage, context = null) => {
+const formatMessage = (provider, systemPrompt, userMessage, context = null, chatHistory = []) => {
   let fullSystemPrompt = systemPrompt
   
   if (context) {
@@ -68,15 +68,32 @@ const formatMessage = (provider, systemPrompt, userMessage, context = null) => {
 
   const config = loadAIConfig()
 
+  // Convert chat history to appropriate format
+  const formatChatHistory = (history) => {
+    return history.map(msg => ({
+      role: msg.type === 'user' ? 'user' : 'assistant',
+      content: msg.content
+    }))
+  }
+
   switch (provider) {
-    case AI_PROVIDERS.OPENAI:
+    case AI_PROVIDERS.OPENAI: {
+      const messages = [
+        { role: 'system', content: fullSystemPrompt }
+      ]
+      
+      // Add chat history
+      if (chatHistory.length > 0) {
+        messages.push(...formatChatHistory(chatHistory))
+      }
+      
+      // Add current user message
+      messages.push({ role: 'user', content: userMessage })
+
       const openaiBody = {
         model: config.model,
         max_completion_tokens: config.maxTokens,
-        messages: [
-          { role: 'system', content: fullSystemPrompt },
-          { role: 'user', content: userMessage }
-        ]
+        messages: messages
       }
       
       // Only add temperature for models that support it
@@ -86,21 +103,46 @@ const formatMessage = (provider, systemPrompt, userMessage, context = null) => {
       }
       
       return openaiBody
+    }
     
-    case AI_PROVIDERS.ANTHROPIC:
+    case AI_PROVIDERS.ANTHROPIC: {
+      const messages = []
+      
+      // Add chat history
+      if (chatHistory.length > 0) {
+        messages.push(...formatChatHistory(chatHistory))
+      }
+      
+      // Add current user message
+      messages.push({ role: 'user', content: userMessage })
+
       return {
         model: config.model,
         max_tokens: config.maxTokens,
         temperature: config.temperature,
         system: fullSystemPrompt,
-        messages: [{ role: 'user', content: userMessage }]
+        messages: messages
       }
+    }
     
-    case AI_PROVIDERS.GOOGLE:
+    case AI_PROVIDERS.GOOGLE: {
+      // For Google, we need to format chat history as part of the contents
+      let fullContent = fullSystemPrompt
+      
+      // Add chat history to content
+      if (chatHistory.length > 0) {
+        const historyText = chatHistory.map(msg => 
+          `${msg.type === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+        ).join('\n\n')
+        fullContent += `\n\nPrevious conversation:\n${historyText}`
+      }
+      
+      fullContent += `\n\nUser: ${userMessage}`
+      
       return {
         contents: [{
           parts: [{
-            text: `${fullSystemPrompt}\n\nUser: ${userMessage}`
+            text: fullContent
           }]
         }],
         generationConfig: {
@@ -108,6 +150,7 @@ const formatMessage = (provider, systemPrompt, userMessage, context = null) => {
           maxOutputTokens: config.maxTokens
         }
       }
+    }
     
     default:
       throw new Error(`Unsupported provider: ${provider}`)
@@ -115,7 +158,7 @@ const formatMessage = (provider, systemPrompt, userMessage, context = null) => {
 }
 
 // Main AI API call function
-export const callAI = async (systemPrompt, userMessage, context = null) => {
+export const callAI = async (systemPrompt, userMessage, context = null, chatHistory = []) => {
   const config = loadAIConfig()
   
   if (!config.apiKey) {
@@ -129,7 +172,7 @@ export const callAI = async (systemPrompt, userMessage, context = null) => {
 
   const provider = config.provider
   const endpoint = API_ENDPOINTS[provider]
-  const body = formatMessage(provider, systemPrompt, userMessage, context)
+  const body = formatMessage(provider, systemPrompt, userMessage, context, chatHistory)
   
   // Build AI gateway URL
   const aiUrl = `${AI_BASE_URL}?url=${encodeURIComponent(endpoint)}`
@@ -245,7 +288,34 @@ export const parseAIResponse = (response) => {
 }
 
 // System prompts for different contexts
-export const getSystemPrompt = (stage, fileName, fileContent) => {
+export const getSystemPrompt = (stage, fileName, fileContent, allFiles = null) => {
+  let contextFiles = ''
+  
+  // Include relevant files based on the current stage
+  if (allFiles) {
+    if (stage === 'build') {
+      // For build stage, include spec.md and contract.sol
+      const relevantFiles = ['spec.md', 'contract.sol']
+      const fileContexts = relevantFiles
+        .filter(file => allFiles[file] && allFiles[file].content)
+        .map(file => `=== ${file} ===\n${allFiles[file].content}`)
+      
+      if (fileContexts.length > 0) {
+        contextFiles = `\n\nRelevant project files for context:\n${fileContexts.join('\n\n')}`
+      }
+    } else if (stage === 'test') {
+      // For test stage, include spec.md, contract.sol, and tests.sol
+      const relevantFiles = ['spec.md', 'contract.sol', 'tests.sol']
+      const fileContexts = relevantFiles
+        .filter(file => allFiles[file] && allFiles[file].content)
+        .map(file => `=== ${file} ===\n${allFiles[file].content}`)
+      
+      if (fileContexts.length > 0) {
+        contextFiles = `\n\nRelevant project files for context:\n${fileContexts.join('\n\n')}`
+      }
+    }
+  }
+
   const basePrompt = `You are an expert Solidity developer helping users build secure smart contracts.
 
 IMPORTANT INSTRUCTIONS:
@@ -256,7 +326,7 @@ IMPORTANT INSTRUCTIONS:
 5. Always include proper SPDX license and pragma statements
 
 Current file: ${fileName}
-Current stage: ${stage}
+Current stage: ${stage}${contextFiles}
 
 ${fileContent ? `Current file content:\n\`\`\`solidity\n${fileContent}\n\`\`\`` : ''}`
 
