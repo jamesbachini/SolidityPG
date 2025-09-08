@@ -1,3 +1,6 @@
 node_modules/
 prompts/
 CLAUDE.md
+.claude/
+.git/
+.github/
