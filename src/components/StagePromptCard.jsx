@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, Copy, CheckCircle, Edit3, Save, X } from 'lucide-react'
-import { stagePrompts } from '../config/stagePrompts'
+import { stagePrompts } from '../utils/stagePrompts'
 
 function StagePromptCard({ stage }) {
   const [isExpanded, setIsExpanded] = useState(false)

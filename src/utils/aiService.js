@@ -1,6 +1,10 @@
-// AI Service Configuration using Braintrust Proxy for CORS-free API calls
+// AI Service Configuration
 
 const AI_CONFIG_STORAGE_KEY = 'soliditypg_ai_config'
+
+import { stagePrompts } from './stagePrompts'
+
+window.test1 = stagePrompts;
 
 export const AI_PROVIDERS = {
   OPENAI: 'openai',
@@ -17,20 +21,19 @@ export const AI_MODELS = {
     { id: 'claude-sonnet-4-20250514', name: 'Claude Sonnet 4', contextLimit: 200000 }
   ],
   [AI_PROVIDERS.GOOGLE]: [
-    { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', contextLimit: 1000000, disabled: true },
-    { id: 'gemini-2.0-pro', name: 'Gemini 2.0 Pro', contextLimit: 2000000, disabled: true }
+    { id: 'gemini-2.0-flash', name: 'Gemini 2.5 Flash', contextLimit: 1000000, disabled: true },
+    { id: 'gemini-2.0-pro', name: 'Gemini 2.5 Pro', contextLimit: 2000000, disabled: true }
   ]
 }
 
 export const DEFAULT_CONFIG = {
   provider: AI_PROVIDERS.OPENAI,
-  model: 'gpt-5',
+  model: 'gpt-5-mini',
   apiKey: '',
   temperature: 1,
   maxTokens: 4096
 }
 
-// Storage utilities
 export const saveAIConfig = (config) => {
   try {
     localStorage.setItem(AI_CONFIG_STORAGE_KEY, JSON.stringify(config))
@@ -248,7 +251,6 @@ const extractResponse = (provider, data) => {
   }
 }
 
-// Response parsing utilities
 export const parseAIResponse = (response) => {
   const result = {
     code: '',
@@ -256,32 +258,21 @@ export const parseAIResponse = (response) => {
     hasCode: false,
     hasComments: false
   }
-
-  // Look for code blocks (```solidity or ``` with solidity-like content)
-  const codeBlockRegex = /```(?:solidity|sol)?\n?([\s\S]*?)```/g
+  // Match only fenced code blocks without language: ```\n...\n```
+  const codeBlockRegex = /```\n?([\s\S]*?)```/g
   const codeMatches = [...response.matchAll(codeBlockRegex)]
-  
   if (codeMatches.length > 0) {
+    // Extract and join all code blocks
     result.code = codeMatches.map(match => match[1].trim()).join('\n\n')
     result.hasCode = true
-    
-    // Remove code blocks from response to get comments
+
+    // Remove code blocks for commentary
     result.comments = response.replace(codeBlockRegex, '').trim()
     result.hasComments = result.comments.length > 0
   } else {
-    // No explicit code blocks, try to detect inline code
-    const solidityKeywords = /\b(contract|function|modifier|event|struct|enum|pragma|import)\b/
-    const hasKeywords = solidityKeywords.test(response)
-    
-    if (hasKeywords && response.includes('{') && response.includes('}')) {
-      // Looks like code without proper markdown formatting
-      result.code = response.trim()
-      result.hasCode = true
-    } else {
-      // Pure commentary
-      result.comments = response.trim()
-      result.hasComments = true
-    }
+    // No fenced blocks, treat entire response as comments
+    result.comments = response.trim()
+    result.hasComments = result.comments.length > 0
   }
 
   return result
@@ -290,7 +281,6 @@ export const parseAIResponse = (response) => {
 // System prompts for different contexts
 export const getSystemPrompt = (stage, fileName, fileContent, allFiles = null) => {
   let contextFiles = ''
-  
   // Include relevant files based on the current stage
   if (allFiles) {
     if (stage === 'build') {
@@ -299,7 +289,6 @@ export const getSystemPrompt = (stage, fileName, fileContent, allFiles = null) =
       const fileContexts = relevantFiles
         .filter(file => allFiles[file] && allFiles[file].content)
         .map(file => `=== ${file} ===\n${allFiles[file].content}`)
-      
       if (fileContexts.length > 0) {
         contextFiles = `\n\nRelevant project files for context:\n${fileContexts.join('\n\n')}`
       }
@@ -316,57 +305,23 @@ export const getSystemPrompt = (stage, fileName, fileContent, allFiles = null) =
     }
   }
 
-  const basePrompt = `You are an expert Solidity developer helping users build secure smart contracts.
+  const basePrompt = `You are providing an AI assisted development experience for Solidity smart contracts.
+
+Your response will be returned to an online IDE where it will populate the chat window and code will be added to the text-editor
 
 IMPORTANT INSTRUCTIONS:
-1. When providing code, wrap it in \`\`\`solidity code blocks
-2. Provide explanations outside of code blocks
-3. Focus on security, gas optimization, and best practices
-4. If updating existing code, provide the complete updated version
-5. Always include proper SPDX license and pragma statements
+1. When providing a response break it down into two parts. The comments for the chat window and a single complete code block to replace the file inside \`\`\` code blocks
+2. The entire file will be overwritten with your response so do not leave any placeholders or //remains unchanged comments with missing code
+3. When updating existing code, provide the complete updated version
+
+I am using this regex /\`\`\`\\n?([\\s\\S]*?)\`\`\`/g to separate the response so please only send back comments and a single complete code.
+Any code you send back will replace the existing file, if you just want to discuss a line of code or small snippet then do not include the \`\`\`\ tags.
 
 Current file: ${fileName}
 Current stage: ${stage}${contextFiles}
 
-${fileContent ? `Current file content:\n\`\`\`solidity\n${fileContent}\n\`\`\`` : ''}`
+${fileContent ? `Current file content:\n\`\`\`\n${fileContent}\n\`\`\`` : ''}`
 
-  const stageSpecificPrompts = {
-    spec: `
-You are in the SPECIFICATION stage. Help the user:
-- Define clear contract requirements
-- Identify security considerations
-- Plan function interfaces and events
-- Consider access control patterns`,
-    
-    build: `
-You are in the BUILD stage. Help the user:
-- Implement secure Solidity code
-- Use established security patterns
-- Optimize for gas efficiency  
-- Write comprehensive NatSpec documentation
-- Follow the Checks-Effects-Interactions pattern`,
-    
-    test: `
-You are in the TEST stage. Help the user:
-- Write comprehensive unit tests
-- Create security-focused test cases
-- Test edge cases and error conditions
-- Implement property-based testing concepts`,
-    
-    deploy: `
-You are in the DEPLOY stage. Help the user:
-- Create deployment scripts
-- Configure constructor parameters
-- Plan for different network deployments
-- Set up contract verification`,
-    
-    integrate: `
-You are in the INTEGRATE stage. Help the user:
-- Generate frontend integration code
-- Create TypeScript bindings
-- Implement wallet connectivity
-- Build user-friendly interfaces`
-  }
 
-  return basePrompt + (stageSpecificPrompts[stage] || stageSpecificPrompts.build)
+  return basePrompt + (stagePrompts[stage] || stagePrompts.build)
 }

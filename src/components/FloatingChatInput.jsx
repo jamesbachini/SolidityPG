@@ -357,17 +357,19 @@ const FloatingChatInput = forwardRef(({
                 </div>
               )}
             </div>
-            <button
-              type="submit"
-              disabled={!message.trim() || isLoading}
-              className="px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:from-dark-600 disabled:to-dark-600 disabled:text-dark-400 text-white rounded-md transition-all flex items-center gap-1 font-medium"
-            >
-              {isLoading ? (
-                <Loader2 size={14} className="animate-spin" />
-              ) : (
-                <Send size={14} />
-              )}
-            </button>
+            <div className="mb-2">
+              <button
+                type="submit"
+                disabled={!message.trim() || isLoading}
+                className="px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 disabled:from-dark-600 disabled:to-dark-600 disabled:text-dark-400 text-white rounded-md transition-all flex items-center gap-1 font-medium"
+              >
+                {isLoading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Send size={14} />
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

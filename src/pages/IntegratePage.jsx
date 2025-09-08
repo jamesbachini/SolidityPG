@@ -2,7 +2,7 @@ import StagePromptCard from '../components/StagePromptCard'
 
 function IntegratePage() {
   return (
-    <div className="p-6">
+    <div className="p-6 bg-stone-950">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white mb-2">Frontend Integration</h1>
         <p className="text-dark-300">

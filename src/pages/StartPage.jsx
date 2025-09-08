@@ -48,7 +48,7 @@ function StartPage() {
   ]
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="h-full overflow-auto bg-stone-950">
       <div className="p-8 max-w-6xl mx-auto">
         <div className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-6">

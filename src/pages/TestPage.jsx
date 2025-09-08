@@ -67,7 +67,7 @@ function TestPage() {
 
   return (
     <div 
-      className="p-6 h-full"
+      className="p-6 bg-stone-950"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
