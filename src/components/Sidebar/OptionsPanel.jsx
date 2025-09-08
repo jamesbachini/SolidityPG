@@ -59,6 +59,7 @@ function OptionsPanel() {
         saveAIConfig(DEFAULT_CONFIG)
         
         alert('All local data has been cleared!')
+        window.location = '/';
       } catch (error) {
         alert('Failed to clear data: ' + error.message)
       }

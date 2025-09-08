@@ -9,7 +9,7 @@ import IntegratePage from './pages/IntegratePage'
 import { ROUTES } from './utils/routes'
 
 function App() {
-  const basename = import.meta.env.PROD ? '/' : '/SolidityPG'
+  const basename = '/';
   
   return (
     <Router basename={basename}>
