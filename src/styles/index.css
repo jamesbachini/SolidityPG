@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply h-full;
+  }
+  
+  body {
+    @apply h-full overflow-hidden;
+  }
+  
+  #root {
+    @apply h-full;
+  }
+}
+
+@layer components {
+  .resizer {
+    @apply absolute top-0 right-0 w-1 h-full cursor-col-resize bg-dark-600 hover:bg-blue-500 transition-colors;
+  }
+  
+  .resizer::before {
+    @apply absolute top-1/2 left-1/2 w-4 h-4 -translate-x-1/2 -translate-y-1/2;
+    content: '';
+  }
+  
+  .monaco-editor {
+    @apply font-mono;
+  }
+}
+
+@layer utilities {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}

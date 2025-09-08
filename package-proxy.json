@@ -1,0 +1,14 @@
+{
+  "name": "soliditypg-proxy",
+  "version": "1.0.0",
+  "description": "CORS proxy for SolidityPG AI API calls",
+  "main": "proxy-server.js",
+  "scripts": {
+    "start": "node proxy-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "cors": "^2.8.5"
+  }
+}
