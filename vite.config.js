@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   base: process.env.NODE_ENV === 'production' ? '/SolidityPG/' : '/',
   build: {
-    outDir: 'dist',
+    outDir: 'docs',
   },
   define: {
     global: 'globalThis',
