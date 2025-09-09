@@ -1,6 +1,17 @@
 import express from "express";
 import cors from "cors";
 
+/*
+mkdir proxy
+nano proxy.mjs
+wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.6/install.sh | bash
+// exit and reload shell
+nvm install 22.19.0
+nvm use 22.19.0
+crontab -e
+@reboot cd /home/jimbachini/proxy && /home/jimbachini/.nvm/versions/node/v22.19.0/bin/node /home/jimbachini/proxy/proxy.mjs >> /home/jimbachini/proxy/cron.log 2>&1
+*/
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -60,7 +71,7 @@ app.all("/p", async (req, res) => {
   }
 });
 
-const port = 8080;
+const port = 80;
 app.listen(port, () => {
   console.log(`Running at http://localhost:${port}`);
   console.log(`Allowed hosts: ${ALLOWED_HOSTS.join(', ')}`);
