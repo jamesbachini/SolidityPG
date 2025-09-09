@@ -33,11 +33,14 @@ function OptionsPanel() {
     const providerModels = AI_MODELS[provider]
     if (providerModels && providerModels.length > 0) {
       const firstModel = providerModels[0]
-      handleConfigChange('provider', provider)
-      handleConfigChange('model', firstModel.id)
+      const newConfig = { ...config, provider: provider, model: firstModel.id }
+      setConfig(newConfig)
+      saveAIConfig(newConfig)
     } else {
       // Fallback to just changing provider
-      handleConfigChange('provider', provider)
+      const newConfig = { ...config, provider: provider }
+      setConfig(newConfig)
+      saveAIConfig(newConfig)
     }
   }
 
