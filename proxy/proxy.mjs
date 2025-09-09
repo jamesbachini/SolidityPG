@@ -8,9 +8,11 @@ wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.6/install.sh | bash
 // exit and reload shell
 nvm install 22.19.0
 nvm use 22.19.0
+sudo setcap 'cap_net_bind_service=+ep' $(which node)
 crontab -e
 @reboot cd /home/jimbachini/proxy && /home/jimbachini/.nvm/versions/node/v22.19.0/bin/node /home/jimbachini/proxy/proxy.mjs >> /home/jimbachini/proxy/cron.log 2>&1
-*/
+// exit and restart server
+// */
 
 const app = express();
 app.use(cors());
@@ -72,7 +74,28 @@ app.all("/p", async (req, res) => {
 });
 
 const port = 80;
-app.listen(port, () => {
+
+const server = app.listen(port, () => {
   console.log(`Running at http://localhost:${port}`);
   console.log(`Allowed hosts: ${ALLOWED_HOSTS.join(', ')}`);
+});
+
+// Handle server errors
+server.on('error', (error) => {
+  if (error.code === 'EACCES') {
+    console.error(`Port ${port} requires elevated privileges`);
+  } else if (error.code === 'EADDRINUSE') {
+    console.error(`Port ${port} is already in use`);
+  } else {
+    console.error('Server error:', error);
+  }
+});
+
+// Keep process alive
+process.on('SIGINT', () => {
+  console.log('Shutting down server...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });
