@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import Shell from './layout/Shell'
 import StartPage from './pages/StartPage'
 import SpecPage from './pages/SpecPage'
@@ -9,10 +9,8 @@ import IntegratePage from './pages/IntegratePage'
 import { ROUTES } from './utils/routes'
 
 function App() {
-  const basename = '/';
-  
   return (
-    <Router basename={basename}>
+    <Router>
       <div className="h-full bg-dark-900">
         <Routes>
           <Route path="/" element={<Navigate to={ROUTES.START} replace />} />
