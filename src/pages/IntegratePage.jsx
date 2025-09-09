@@ -14,27 +14,21 @@ function IntegratePage() {
       name: 'viem',
       description: 'Modern TypeScript Ethereum library',
       features: ['Type-safe', 'Lightweight', 'Tree-shakeable', 'Modern APIs'],
-      recommended: true
+      recommended: false
+    },
+    {
+      id: 'ethers',
+      name: 'ethers.js',
+      description: 'Complete and compact library for interacting with the Ethereum',
+      features: ['Comprehensive', 'Well documented', 'Provider abstraction', 'ENS support']
     },
     {
       id: 'wagmi',
       name: 'wagmi',
       description: 'React hooks for Ethereum',
       features: ['React hooks', 'Built on viem', 'Caching', 'Type-safe'],
-      recommended: true
+      recommended: false
     },
-    {
-      id: 'ethers',
-      name: 'ethers.js v6',
-      description: 'Complete Ethereum wallet implementation',
-      features: ['Comprehensive', 'Well documented', 'Provider abstraction', 'ENS support']
-    },
-    {
-      id: 'web3js',
-      name: 'web3.js',
-      description: 'Ethereum JavaScript API',
-      features: ['Legacy support', 'Wide adoption', 'Plugin system', 'Multi-provider']
-    }
   ]
 
   const frameworks = [

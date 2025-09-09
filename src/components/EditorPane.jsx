@@ -193,10 +193,8 @@ const EditorPane = forwardRef(function EditorPane({ onDataChange }, ref) {
     }
   }, [location.pathname])
 
-  const handleEditorDidMount = (editor, monaco) => {
-    editorRef.current = editor
-    
-    // Register Solidity language
+  const handleEditorWillMount = (monaco) => {
+    // Register Solidity language before editor mounts
     if (!monaco.languages.getLanguages().find(lang => lang.id === 'solidity')) {
       monaco.languages.register({ id: 'solidity' })
       
@@ -238,9 +236,19 @@ const EditorPane = forwardRef(function EditorPane({ onDataChange }, ref) {
           { token: 'number', foreground: 'b5cea8' },
           { token: 'number.hex', foreground: 'b5cea8' }
         ],
-        colors: {}
+        colors: {
+          'editor.background': '#1e1e1e',
+          'editor.foreground': '#d4d4d4'
+        }
       })
     }
+    
+    // Set dark theme as default
+    monaco.editor.setTheme('vs-dark')
+  }
+
+  const handleEditorDidMount = (editor, monaco) => {
+    editorRef.current = editor
     
     // Configure editor
     editor.updateOptions({
@@ -360,7 +368,7 @@ const EditorPane = forwardRef(function EditorPane({ onDataChange }, ref) {
       </div>
 
       {/* Editor */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative bg-[#1e1e1e]">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-dark-900 z-10">
             <div className="text-dark-300">Loading editor...</div>
@@ -374,6 +382,7 @@ const EditorPane = forwardRef(function EditorPane({ onDataChange }, ref) {
           value={currentFile.content}
           onMount={handleEditorDidMount}
           onChange={handleEditorChange}
+          beforeMount={handleEditorWillMount}
           options={{
             readOnly: false,
             automaticLayout: true,

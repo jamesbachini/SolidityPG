@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom'
 import { FileCode, ListChecks, Beaker, Rocket, Plug, BookOpen } from 'lucide-react'
+import { useState, useEffect } from 'react'
 
 const WORKFLOW_STAGES = [
   {
@@ -52,14 +53,17 @@ const WORKFLOW_STAGES = [
   }
 ]
 
-function BottomWorkflowNav() {
+function BottomWorkflowNav({ sidebarOpen = true, isMobile = false }) {
   const location = useLocation()
   const navigate = useNavigate()
   
   const isActive = (path) => location.pathname === path
 
+  // Calculate right margin based on sidebar state
+  const rightMargin = !isMobile && sidebarOpen ? 'right-96' : 'right-0'
+
   return (
-    <nav className="bg-dark-800 border-t border-dark-600 px-4 py-3 safe-area-bottom">
+    <nav className={`fixed bottom-0 left-0 ${rightMargin} bg-dark-800 border-t border-dark-600 px-4 py-3 safe-area-bottom z-10`}>
       <div className="flex justify-center">
         <div className="flex items-center gap-1 max-w-2xl w-full">
           {WORKFLOW_STAGES.map((stage) => {

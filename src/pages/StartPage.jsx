@@ -108,7 +108,7 @@ function StartPage() {
                       </span>
                       <div className="text-blue-400 transform rotate-45">
                         <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M4 16 L16 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          <path d="M4 16 L16 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                           <path d="M12 4 L16 4 L16 8" fill="currentColor"/>
                         </svg>
                       </div>

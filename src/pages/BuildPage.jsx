@@ -145,7 +145,20 @@ function BuildPage() {
 
             {/* Content */}
             <div className="flex-1 overflow-auto">
-              {!compilationResult ? (
+              {isCompiling ? (
+                <div className="p-6 text-center">
+                  <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Loader2 size={28} className="text-white animate-spin" />
+                  </div>
+                  <h3 className="text-lg font-medium text-white mb-2">Compiling Contracts...</h3>
+                  <p className="text-dark-300 text-sm">
+                    Please wait while we compile your Solidity contracts using the official Solidity compiler.
+                  </p>
+                  <p className="text-blue-400 text-xs mt-2">
+                    Loading compiler binary from soliditylang.org
+                  </p>
+                </div>
+              ) : !compilationResult ? (
                 <div className="p-6 text-center">
                   <div className="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Code size={28} className="text-dark-400" />
@@ -197,7 +210,9 @@ function BuildPage() {
                       <h4 className="text-red-300 font-medium">Errors:</h4>
                       {formatCompilationErrors(compilationResult.compilationErrors || compilationResult.errors).map((error, idx) => (
                         <div key={idx} className="bg-red-600/10 border border-red-600/20 rounded p-3">
-                          <div className="text-red-300 text-sm font-mono">
+                          <div className="text-red-300 text-sm font-mono whitespace-pre-wrap">
+                            {error.file && <span className="text-red-400">{error.file}:</span>}
+                            {error.line && <span className="text-red-400">{error.line}: </span>}
                             {error.formatted}
                           </div>
                         </div>

@@ -76,7 +76,7 @@ function Shell() {
       />
       
       {/* Main content area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex overflow-hidden pb-20">
         {/* Left side - Editor and Stage Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Stage content area - shows above editor on larger screens */}
@@ -114,7 +114,7 @@ function Shell() {
       </div>
       
       {/* Bottom navigation */}
-      <BottomWorkflowNav />
+      <BottomWorkflowNav sidebarOpen={sidebarOpen} isMobile={isMobile} />
       
       {/* Floating Chat Input */}
       <FloatingChatInput 

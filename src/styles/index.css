@@ -63,6 +63,15 @@
   
   .monaco-editor {
     @apply font-mono;
+    background-color: #1e1e1e !important;
+  }
+  
+  .monaco-editor-background {
+    background-color: #1e1e1e !important;
+  }
+  
+  .monaco-editor .view-overlays .current-line {
+    background-color: rgba(255, 255, 255, 0.1) !important;
   }
 
   /* Monaco Editor specific scrollbar styling */
