@@ -1,8 +1,6 @@
-import { useState } from 'react'
 import { X } from 'lucide-react'
 import OptionsPanel from '../components/Sidebar/OptionsPanel'
 import ChatPanel from '../components/Sidebar/ChatPanel'
-import CompilationPanel from '../components/Sidebar/CompilationPanel'
 
 function RightSidebar({ 
   isOpen, 
@@ -58,16 +56,6 @@ function RightSidebar({
               </span>
             </button>
             <button
-              onClick={() => onSetActiveTab('compile')}
-              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                activeTab === 'compile'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-dark-300 hover:text-white hover:bg-dark-700'
-              }`}
-            >
-              Compile
-            </button>
-            <button
               onClick={() => onSetActiveTab('options')}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
                 activeTab === 'options'
@@ -102,7 +90,6 @@ function RightSidebar({
               floatingChatRef={floatingChatRef}
             />
           )}
-          {activeTab === 'compile' && <CompilationPanel files={files} activeFile={activeFile} />}
           {activeTab === 'options' && <OptionsPanel />}
         </div>
       </div>

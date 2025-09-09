@@ -26,6 +26,11 @@ function Shell() {
     }
   })
   const [sidebarActiveTab, setSidebarActiveTab] = useState('chat')
+  
+  // Ensure valid tab selection (redirect compile to chat since we removed it)
+  const handleSetActiveTab = (tab) => {
+    setSidebarActiveTab(tab === 'compile' ? 'chat' : tab)
+  }
   const editorRef = useRef()
   const floatingChatRef = useRef()
   const location = useLocation()
@@ -103,7 +108,7 @@ function Shell() {
           chatHistory={chatHistory}
           onUpdateChatHistory={setChatHistory}
           activeTab={sidebarActiveTab}
-          onSetActiveTab={setSidebarActiveTab}
+          onSetActiveTab={handleSetActiveTab}
           floatingChatRef={floatingChatRef}
         />
       </div>
