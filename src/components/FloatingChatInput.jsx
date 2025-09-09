@@ -255,7 +255,7 @@ const FloatingChatInput = forwardRef(({
       className={`fixed z-50 w-96 max-w-[calc(100vw-1rem)] floating-window ${!position ? 'bottom-0 right-0' : ''}`}
       style={windowStyle}
     >
-      <div className="bg-dark-800 border border-dark-600 rounded-lg shadow-xl">
+      <div className="bg-dark-800 border-2 border-indigo-600 rounded-lg shadow-xl mr-1 mb-1">
         {/* Header */}
         <div 
           className={`flex items-center justify-between p-3 border-b border-dark-600 cursor-move select-none ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}

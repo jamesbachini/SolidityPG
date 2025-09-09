@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X } from 'lucide-react'
 import OptionsPanel from '../components/Sidebar/OptionsPanel'
 import ChatPanel from '../components/Sidebar/ChatPanel'
-import CompilationPanel from '../components/CompilationPanel'
+import CompilationPanel from '../components/Sidebar/CompilationPanel'
 
 function RightSidebar({ 
   isOpen, 

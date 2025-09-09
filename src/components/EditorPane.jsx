@@ -98,7 +98,7 @@ Start by clicking on the **Spec** tab below to define your contract requirements
   },
   'contract.sol': {
     content: `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.30;
 
 /**
  * @title 
@@ -111,7 +111,7 @@ contract MyContract {
   },
   'tests.sol': {
     content: `// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.30;
 
 import "forge-std/Test.sol";
 

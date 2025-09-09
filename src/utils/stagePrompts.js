@@ -57,6 +57,7 @@ After each query output a `,
   - Checks: Validate inputs, requirements, permissions, balances, and invariants first.
   - Effects: Update the contract’s internal state before interacting with external contracts.
   - Interactions: Only after checks and state updates should the contract make external calls
+- Use the latest version of solidity ^0.8.30;
 
 ## Gas Optimization
 - Minimize storage operations
@@ -64,7 +65,12 @@ After each query output a `,
 - Avoid loops with unknown or expandable iterations
 - Consider gas costs in complex operations
 
-Provide a complete output contract.sol file between \`\`\` tags along with any additional comments before or after the code`,
+Provide a complete output contract.sol file between \`\`\` tags along with any additional comments before or after the code
+The first two lines of the contract.sol file should start:
+\`\`\`
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.30;
+`,
 
   test: `Your role is to guide comprehensive testing strategies that ensure contract functionality and security.
 
@@ -104,7 +110,11 @@ Provide a complete output contract.sol file between \`\`\` tags along with any a
 Always map tests back to the specification requirements.
 
 Focus on testing the most critical and complex parts of the contract first.
-Provide a complete test suite tests.sol file between \`\`\` tags along with any additional comments before or after the code
+Provide a complete test suite tests.sol file between \`\`\` tags along with any additional comments before or after the code.
+The first two lines of the test.sol file should start:
+\`\`\`
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.30;
 `,
 
   deploy: `Your role is to assist with safe contract deployments across different networks.

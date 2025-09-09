@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Play, AlertTriangle, CheckCircle, XCircle, Code, FileText, Loader2 } from 'lucide-react'
-import { compileSolidity, formatCompilationErrors } from '../utils/compiler'
+import { compileSolidity, formatCompilationErrors } from '../../utils/compiler'
 
 function CompilationPanel({ files }) {
   const [isCompiling, setIsCompiling] = useState(false)
