@@ -52,7 +52,8 @@ export const loadAIConfig = () => {
 }
 
 // Custom AI gateway - handles CORS automatically
-const AI_BASE_URL = 'http://34.122.78.196:8081/p'
+//const AI_BASE_URL = 'http://34.122.78.196:8080/p'
+const AI_BASE_URL = 'https://cors-anywhere.herokuapp.com'
 
 // API endpoints for different providers
 const API_ENDPOINTS = {
@@ -178,8 +179,9 @@ export const callAI = async (systemPrompt, userMessage, context = null, chatHist
   const body = formatMessage(provider, systemPrompt, userMessage, context, chatHistory)
   
   // Build AI gateway URL
-  const aiUrl = `${AI_BASE_URL}?url=${encodeURIComponent(endpoint)}`
-  
+  //const aiUrl = `${AI_BASE_URL}?url=${encodeURIComponent(endpoint)}`
+  const aiUrl = `${AI_BASE_URL}/${endpoint}`
+
   // Provider-specific headers
   const headers = {
     'Content-Type': 'application/json'

@@ -5,11 +5,36 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Define allowed hosts
+const ALLOWED_HOSTS = [
+  'api.openai.com',
+  'api.anthropic.com', 
+  'generativelanguage.googleapis.com'
+];
+
+// Function to validate if URL is allowed
+function isUrlAllowed(url) {
+  try {
+    const urlObj = new URL(url);
+    return ALLOWED_HOSTS.includes(urlObj.hostname);
+  } catch (error) {
+    return false;
+  }
+}
+
 app.all("/p", async (req, res) => {
   try {
     const targetUrl = req.query.url;
     if (!targetUrl) {
       return res.status(400).json({ error: "Missing url query parameter" });
+    }
+
+    // Validate that the target URL is allowed
+    if (!isUrlAllowed(targetUrl)) {
+      return res.status(403).json({ 
+        error: "Access denied. URL not in allowed hosts list.",
+        allowedHosts: ALLOWED_HOSTS
+      });
     }
 
     const response = await fetch(targetUrl, {
@@ -35,7 +60,8 @@ app.all("/p", async (req, res) => {
   }
 });
 
-const port = 8081;
+const port = 8080;
 app.listen(port, () => {
   console.log(`Running at http://localhost:${port}`);
+  console.log(`Allowed hosts: ${ALLOWED_HOSTS.join(', ')}`);
 });
