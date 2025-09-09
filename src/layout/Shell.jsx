@@ -78,7 +78,7 @@ function Shell() {
           <div className={`hidden md:block bg-dark-800 border-b border-dark-600 overflow-auto ${
             location.pathname === '/start' ? 'h-3/5' : 'max-h-80'
           }`}>
-            <Outlet />
+            <Outlet context={{ files: editorData.files }} />
           </div>
           
           {/* Editor */}
@@ -88,7 +88,7 @@ function Shell() {
           
           {/* Stage content area - mobile view */}
           <div className="md:hidden bg-dark-800 border-t border-dark-600 max-h-60 overflow-auto">
-            <Outlet />
+            <Outlet context={{ files: editorData.files }} />
           </div>
         </div>
         
