@@ -52,7 +52,7 @@ export const loadAIConfig = () => {
 }
 
 // Custom AI gateway - handles CORS automatically
-const AI_BASE_URL = 'https://proxy.soropg.com/p'
+const AI_BASE_URL = 'https://api.allorigins.win/raw'
 
 // API endpoints for different providers
 const API_ENDPOINTS = {
